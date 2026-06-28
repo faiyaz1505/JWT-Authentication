@@ -10,8 +10,11 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.sec.security.filter.JwtAuthFilter;
 import com.sec.security.service.CustomUserDetailService;
+import com.sec.security.util.JwtUtil;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
@@ -23,13 +26,16 @@ import org.springframework.security.config.Customizer;
 public class SecurityConfig {
 	@Autowired
 	private CustomUserDetailService customUserDetailService;
+	@Autowired
+	private JwtAuthFilter authFilter;
 	
 	@Bean
 	SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
 		httpSecurity
 				.authorizeHttpRequests(auth -> auth.requestMatchers("/auth/**").permitAll().anyRequest().authenticated()
 
-				).httpBasic(Customizer.withDefaults());
+				);
+		httpSecurity.addFilterBefore(	authFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return httpSecurity.build();
 	}
